@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+    id 'signing'
+    id 'maven-publish'
+}
+
+group = 'net.javafaker.junit'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'net.javafaker.junit'
+            artifactId = 'api'
+
+            from components.java
+        }
+    }
+    repositories {
+        def snapshotUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+        def releaseUrl = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+        maven {
+            name = 'OSS'
+            url = version.endsWith('SNAPSHOT') ? snapshotUrl : releaseUrl
+            credentials (PasswordCredentials)
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.find()
+}
+
+test {
+    useJUnitPlatform()
+}

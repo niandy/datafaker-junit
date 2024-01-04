@@ -1,0 +1,13 @@
+plugins {
+    id 'java'
+}
+
+group = 'net.javafaker.junit'
+
+repositories {
+    mavenCentral()
+}
+
+test {
+    useJUnitPlatform()
+}

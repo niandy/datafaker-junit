@@ -1,0 +1,74 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'signing'
+    id 'maven-publish'
+}
+
+group = 'net.javafaker'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':api')
+
+    implementation 'com.google.flogger:flogger:0.4'
+    runtimeOnly 'com.google.flogger:flogger-system-backend:0.4'
+
+    implementation 'org.apache.commons:commons-collections4:4.4'
+    implementation 'net.datafaker:datafaker:2.0.2'
+    implementation 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+    implementation 'com.github.spotbugs:spotbugs-annotations:4.2.0'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.30'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+    testImplementation platform('org.junit:junit-bom:5.9.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'net.javafaker.junit'
+            artifactId = 'extension'
+
+            from components.java
+            generatePomFileForMavenPublication {
+
+            }
+        }
+    }
+    repositories {
+        def snapshotUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+        def releaseUrl = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+        maven {
+            url = version.endsWith('SNAPSHOT') ? snapshotUrl : releaseUrl
+            credentials (PasswordCredentials)
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.find()
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+}
+
